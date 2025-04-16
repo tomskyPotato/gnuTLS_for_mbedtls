@@ -8,7 +8,7 @@ set -e
 SERVER_NAME="weptech-iot.de"
 SAFE_NAME="${SERVER_NAME//[^a-zA-Z0-9]/_}"
 
-mkdir -p keys certs
+mkdir -p keys certs "certs/mbedtls"
 
 echo "=== Erstelle RSA Server-Key ==="
 openssl genrsa -out keys/rsa_${SAFE_NAME}.key 2048
@@ -37,18 +37,19 @@ generate_pem_header() {
     local CERT_FILE="$1"
     local HEADER_FILE="$2"
     local VAR_NAME="$3"
+    local SECTION="$4"
 
     echo "=== Erzeuge Header: $HEADER_FILE ==="
     {
         echo "const char ${VAR_NAME}[] ="
         awk '{ gsub(/"/, "\\\""); print "\"" $0 "\\r\\n\"" }' "$CERT_FILE"
         echo ";"
-        LENGTH=$(awk '{ total += length($0) + 2 } END { print total +1 }' "$CERT_FILE")
+        LENGTH=$(awk '{ total += length($0) + 2 } END { print total + 1 }' "$CERT_FILE")
         echo "const size_t ${VAR_NAME}_len = ${LENGTH};"
     } > "$HEADER_FILE"
 }
 
-generate_pem_header "certs/ca_ecdsa_${SAFE_NAME}.crt" "certs/mbedtls certs/ca_ecdsa_${SAFE_NAME}.h" "ca_ecdsa_${SAFE_NAME}_crt"
-generate_pem_header "certs/ca_rsa_${SAFE_NAME}.crt" "certs/mbedtls certs/ca_rsa_${SAFE_NAME}.h" "ca_rsa_${SAFE_NAME}_crt"
+generate_pem_header "certs/ca_rsa_${SAFE_NAME}.crt" "certs/mbedtls/ca_rsa_${SAFE_NAME}.h" "ca_rsa_crt" "credentials"
+generate_pem_header "certs/ca_ecdsa_${SAFE_NAME}.crt" "certs/mbedtls/ca_ecdsa_${SAFE_NAME}.h" "ca_ecdsa_crt" "credentials"
 
 echo "Server-Zertifikate für ${SERVER_NAME} fertig."
