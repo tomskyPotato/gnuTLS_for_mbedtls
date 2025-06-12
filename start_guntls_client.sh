@@ -5,6 +5,7 @@
 
 # Finde laufende Python Prozesse: ps aux | grep '[p]ython'
 gnutls-cli \
+  --x509cafile DigiCertGlobalRootG2.crt.pem \
   --debug=9000 \
   --priority "NORMAL:-VERS-ALL:+VERS-TLS1.2:-KX-RSA" \
   ma000002.izar-test.com \
